@@ -1,0 +1,45 @@
+{
+  "name": "spec-sync",
+  "version": "0.1.0",
+  "description": "Automated AI-powered OpenAPI spec and documentation synchronization for every pull request",
+  "type": "module",
+  "bin": {
+    "spec-sync": "./dist/cli/index.js"
+  },
+  "main": "./dist/core/index.js",
+  "types": "./dist/core/index.d.ts",
+  "scripts": {
+    "dev": "tsx src/cli/index.ts",
+    "build": "tsc && esbuild src/action/index.ts --bundle --platform=node --target=node20 --format=esm --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\" --outfile=dist/action/index.js && esbuild src/cli/index.ts --bundle --platform=node --target=node20 --format=esm --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\" --outfile=dist/cli/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "openapi",
+    "swagger",
+    "documentation",
+    "github-action",
+    "ai",
+    "gemini",
+    "api-contracts"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/exec": "^1.1.1",
+    "@actions/github": "^6.0.0",
+    "@google/generative-ai": "^0.24.1",
+    "commander": "^13.1.0",
+    "openai": "^4.85.4",
+    "yaml": "^2.7.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.19",
+    "esbuild": "^0.25.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

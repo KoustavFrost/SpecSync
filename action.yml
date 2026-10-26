@@ -1,0 +1,45 @@
+name: 'SpecSync'
+description: 'Automated AI-powered OpenAPI spec and documentation synchronization for every pull request'
+author: 'SpecSync'
+branding:
+  icon: 'file-text'
+  color: 'blue'
+
+inputs:
+  gemini_api_key:
+    description: 'Google Gemini API key (recommended free tier from Google AI Studio)'
+    required: false
+  openai_api_key:
+    description: 'OpenAI API key (if using OpenAI models)'
+    required: false
+  groq_api_key:
+    description: 'Groq API key (if using Groq models)'
+    required: false
+  llm_provider:
+    description: 'LLM provider to use: gemini | openai | groq'
+    required: false
+    default: 'gemini'
+  spec_path:
+    description: 'Path to OpenAPI spec file'
+    required: false
+    default: 'openapi.yaml'
+  docs_path:
+    description: 'Path to Markdown documentation file'
+    required: false
+    default: 'API.md'
+  auto_commit:
+    description: 'Whether to auto-commit spec and doc updates to the PR branch'
+    required: false
+    default: 'true'
+
+outputs:
+  has_api_changes:
+    description: 'Whether API route changes were detected'
+  endpoints_count:
+    description: 'Number of detected/updated API endpoints'
+  summary:
+    description: 'Summary of detected API changes'
+
+runs:
+  using: 'node20'
+  main: 'dist/action/index.js'
