@@ -13,7 +13,7 @@ export const DEFAULT_CONFIG = {
     },
     llm: {
         provider: 'gemini',
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.8-flash',
     },
     delivery: {
         mode: 'commit',
@@ -74,6 +74,7 @@ export function loadConfig(cwd = process.cwd()) {
     // Detect available API keys in environment if not explicitly set
     let detectedProvider = 'gemini';
     let detectedKey = undefined;
+    const detectedModel = process.env.GEMINI_MODEL || process.env.LLM_MODEL || process.env.OPENAI_MODEL;
     if (process.env.GEMINI_API_KEY) {
         detectedProvider = 'gemini';
         detectedKey = process.env.GEMINI_API_KEY;
@@ -97,7 +98,9 @@ export function loadConfig(cwd = process.cwd()) {
         },
         llm: {
             provider: fileConfig.llm?.provider || detectedProvider,
-            model: fileConfig.llm?.model || (detectedProvider === 'gemini' ? 'gemini-2.0-flash' : 'gpt-4o-mini'),
+            model: fileConfig.llm?.model ||
+                detectedModel ||
+                (detectedProvider === 'gemini' ? 'gemini-3.8-flash' : 'gpt-4o-mini'),
             apiKey: fileConfig.llm?.apiKey || detectedKey,
         },
         delivery: {

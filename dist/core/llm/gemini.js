@@ -4,7 +4,7 @@ export class GeminiProvider {
     name = 'gemini';
     client;
     model;
-    constructor(apiKey, model = 'gemini-1.5-flash') {
+    constructor(apiKey, model = 'gemini-3.8-flash') {
         this.client = new GoogleGenerativeAI(apiKey);
         this.model = model;
     }

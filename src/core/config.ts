@@ -15,7 +15,7 @@ export const DEFAULT_CONFIG: SpecSyncConfig = {
   },
   llm: {
     provider: 'gemini',
-    model: 'gemini-2.0-flash',
+    model: 'gemini-3.8-flash',
   },
   delivery: {
     mode: 'commit',
@@ -79,6 +79,8 @@ export function loadConfig(cwd: string = process.cwd()): SpecSyncConfig {
   // Detect available API keys in environment if not explicitly set
   let detectedProvider: SupportedLLMProvider = 'gemini';
   let detectedKey: string | undefined = undefined;
+  const detectedModel: string | undefined =
+    process.env.GEMINI_MODEL || process.env.LLM_MODEL || process.env.OPENAI_MODEL;
 
   if (process.env.GEMINI_API_KEY) {
     detectedProvider = 'gemini';
@@ -102,7 +104,10 @@ export function loadConfig(cwd: string = process.cwd()): SpecSyncConfig {
     },
     llm: {
       provider: fileConfig.llm?.provider || detectedProvider,
-      model: fileConfig.llm?.model || (detectedProvider === 'gemini' ? 'gemini-2.0-flash' : 'gpt-4o-mini'),
+      model:
+        fileConfig.llm?.model ||
+        detectedModel ||
+        (detectedProvider === 'gemini' ? 'gemini-3.8-flash' : 'gpt-4o-mini'),
       apiKey: fileConfig.llm?.apiKey || detectedKey,
     },
     delivery: {

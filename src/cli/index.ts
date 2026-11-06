@@ -23,11 +23,20 @@ program
   .option('-b, --base <branch>', 'Base branch or commit to diff against (e.g. main, HEAD~1)')
   .option('-s, --staged', 'Analyze git staged changes only')
   .option('-f, --file <path>', 'Analyze diff from a specific text/patch file')
+  .option('-p, --provider <provider>', 'LLM provider (gemini, openai, groq)')
+  .option('-m, --model <model>', 'LLM model name (e.g. gemini-1.5-flash, gpt-4o-mini)')
   .option('--dry-run', 'Preview changes without modifying spec or docs files')
   .action(async (options) => {
     try {
       console.log('🔍 [SpecSync] Loading configuration...');
       const config = loadConfig();
+
+      if (options.provider) {
+        config.llm.provider = options.provider;
+      }
+      if (options.model) {
+        config.llm.model = options.model;
+      }
 
       let diff = '';
 

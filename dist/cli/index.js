@@ -17100,7 +17100,7 @@ var DEFAULT_CONFIG = {
   },
   llm: {
     provider: "gemini",
-    model: "gemini-2.0-flash"
+    model: "gemini-3.8-flash"
   },
   delivery: {
     mode: "commit",
@@ -17156,6 +17156,7 @@ function loadConfig(cwd = process.cwd()) {
   }
   let detectedProvider = "gemini";
   let detectedKey = void 0;
+  const detectedModel = process.env.GEMINI_MODEL || process.env.LLM_MODEL || process.env.OPENAI_MODEL;
   if (process.env.GEMINI_API_KEY) {
     detectedProvider = "gemini";
     detectedKey = process.env.GEMINI_API_KEY;
@@ -17177,7 +17178,7 @@ function loadConfig(cwd = process.cwd()) {
     },
     llm: {
       provider: fileConfig.llm?.provider || detectedProvider,
-      model: fileConfig.llm?.model || (detectedProvider === "gemini" ? "gemini-2.0-flash" : "gpt-4o-mini"),
+      model: fileConfig.llm?.model || detectedModel || (detectedProvider === "gemini" ? "gemini-3.8-flash" : "gpt-4o-mini"),
       apiKey: fileConfig.llm?.apiKey || detectedKey
     },
     delivery: {
@@ -18285,7 +18286,7 @@ var GeminiProvider = class {
   name = "gemini";
   client;
   model;
-  constructor(apiKey, model = "gemini-1.5-flash") {
+  constructor(apiKey, model = "gemini-3.8-flash") {
     this.client = new GoogleGenerativeAI(apiKey);
     this.model = model;
   }
@@ -25113,10 +25114,16 @@ function generateMarkdownDoc(openApiContent) {
 // src/cli/index.ts
 var program2 = new Command();
 program2.name("spec-sync").description("AI-powered OpenAPI contract and documentation synchronization").version("0.1.0");
-program2.command("sync").description("Detect API changes from git diff and update OpenAPI spec & documentation").option("-b, --base <branch>", "Base branch or commit to diff against (e.g. main, HEAD~1)").option("-s, --staged", "Analyze git staged changes only").option("-f, --file <path>", "Analyze diff from a specific text/patch file").option("--dry-run", "Preview changes without modifying spec or docs files").action(async (options) => {
+program2.command("sync").description("Detect API changes from git diff and update OpenAPI spec & documentation").option("-b, --base <branch>", "Base branch or commit to diff against (e.g. main, HEAD~1)").option("-s, --staged", "Analyze git staged changes only").option("-f, --file <path>", "Analyze diff from a specific text/patch file").option("-p, --provider <provider>", "LLM provider (gemini, openai, groq)").option("-m, --model <model>", "LLM model name (e.g. gemini-1.5-flash, gpt-4o-mini)").option("--dry-run", "Preview changes without modifying spec or docs files").action(async (options) => {
   try {
     console.log("\u{1F50D} [SpecSync] Loading configuration...");
     const config = loadConfig();
+    if (options.provider) {
+      config.llm.provider = options.provider;
+    }
+    if (options.model) {
+      config.llm.model = options.model;
+    }
     let diff = "";
     if (options.file) {
       console.log(`\u{1F4C4} [SpecSync] Reading diff from ${options.file}`);
