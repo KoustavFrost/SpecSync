@@ -12,7 +12,10 @@ async function callWithRetry(fn, maxRetries = 3, initialDelayMs = 2000) {
                 errorStr.includes('429') ||
                 errorStr.includes('high demand') ||
                 errorStr.includes('resource exhausted') ||
-                errorStr.includes('ResourceExhausted');
+                errorStr.includes('ResourceExhausted') ||
+                errorStr.includes('fetch failed') ||
+                errorStr.includes('ECONNRESET') ||
+                errorStr.includes('ETIMEDOUT');
             if (attempt < maxRetries && isTransient) {
                 console.warn(`⏳ [SpecSync] Model capacity busy (503/429). Retrying in ${delay / 1000}s (attempt ${attempt}/${maxRetries})...`);
                 await new Promise((resolve) => setTimeout(resolve, delay));

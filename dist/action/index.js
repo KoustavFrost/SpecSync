@@ -38832,7 +38832,7 @@ async function callWithRetry(fn, maxRetries = 3, initialDelayMs = 2e3) {
       return await fn();
     } catch (err) {
       const errorStr = String(err);
-      const isTransient = errorStr.includes("503") || errorStr.includes("429") || errorStr.includes("high demand") || errorStr.includes("resource exhausted") || errorStr.includes("ResourceExhausted");
+      const isTransient = errorStr.includes("503") || errorStr.includes("429") || errorStr.includes("high demand") || errorStr.includes("resource exhausted") || errorStr.includes("ResourceExhausted") || errorStr.includes("fetch failed") || errorStr.includes("ECONNRESET") || errorStr.includes("ETIMEDOUT");
       if (attempt < maxRetries && isTransient) {
         console.warn(
           `\u23F3 [SpecSync] Model capacity busy (503/429). Retrying in ${delay / 1e3}s (attempt ${attempt}/${maxRetries})...`

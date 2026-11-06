@@ -18,7 +18,10 @@ async function callWithRetry<T>(
         errorStr.includes('429') ||
         errorStr.includes('high demand') ||
         errorStr.includes('resource exhausted') ||
-        errorStr.includes('ResourceExhausted');
+        errorStr.includes('ResourceExhausted') ||
+        errorStr.includes('fetch failed') ||
+        errorStr.includes('ECONNRESET') ||
+        errorStr.includes('ETIMEDOUT');
 
       if (attempt < maxRetries && isTransient) {
         console.warn(

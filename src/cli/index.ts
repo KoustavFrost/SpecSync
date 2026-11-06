@@ -24,7 +24,8 @@ program
   .option('-s, --staged', 'Analyze git staged changes only')
   .option('-f, --file <path>', 'Analyze diff from a specific text/patch file')
   .option('-p, --provider <provider>', 'LLM provider (gemini, openai, groq)')
-  .option('-m, --model <model>', 'LLM model name (e.g. gemini-1.5-flash, gpt-4o-mini)')
+  .option('-m, --model <model>', 'LLM model name (e.g. gemini-3.8-flash, gpt-4o-mini)')
+  .option('-v, --verbose', 'Print verbose debug logs and error details')
   .option('--dry-run', 'Preview changes without modifying spec or docs files')
   .action(async (options) => {
     try {
@@ -109,8 +110,14 @@ program
 
       console.log('\n🎉 [SpecSync] Sync complete!');
     } catch (err: unknown) {
-      const error = err as Error;
+      const error = err as Error & { cause?: unknown };
       console.error('❌ [SpecSync] Error during sync:', error.message || error);
+      if (error.cause) {
+        console.error('🔍 [SpecSync] Underlying cause:', error.cause);
+      }
+      if (options.verbose && error.stack) {
+        console.error('\n📜 [SpecSync] Stack trace:\n', error.stack);
+      }
       process.exit(1);
     }
   });

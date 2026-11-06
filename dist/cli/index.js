@@ -18289,7 +18289,7 @@ async function callWithRetry(fn, maxRetries = 3, initialDelayMs = 2e3) {
       return await fn();
     } catch (err) {
       const errorStr = String(err);
-      const isTransient = errorStr.includes("503") || errorStr.includes("429") || errorStr.includes("high demand") || errorStr.includes("resource exhausted") || errorStr.includes("ResourceExhausted");
+      const isTransient = errorStr.includes("503") || errorStr.includes("429") || errorStr.includes("high demand") || errorStr.includes("resource exhausted") || errorStr.includes("ResourceExhausted") || errorStr.includes("fetch failed") || errorStr.includes("ECONNRESET") || errorStr.includes("ETIMEDOUT");
       if (attempt < maxRetries && isTransient) {
         console.warn(
           `\u23F3 [SpecSync] Model capacity busy (503/429). Retrying in ${delay / 1e3}s (attempt ${attempt}/${maxRetries})...`
@@ -25137,7 +25137,7 @@ function generateMarkdownDoc(openApiContent) {
 // src/cli/index.ts
 var program2 = new Command();
 program2.name("spec-sync").description("AI-powered OpenAPI contract and documentation synchronization").version("0.1.0");
-program2.command("sync").description("Detect API changes from git diff and update OpenAPI spec & documentation").option("-b, --base <branch>", "Base branch or commit to diff against (e.g. main, HEAD~1)").option("-s, --staged", "Analyze git staged changes only").option("-f, --file <path>", "Analyze diff from a specific text/patch file").option("-p, --provider <provider>", "LLM provider (gemini, openai, groq)").option("-m, --model <model>", "LLM model name (e.g. gemini-1.5-flash, gpt-4o-mini)").option("--dry-run", "Preview changes without modifying spec or docs files").action(async (options) => {
+program2.command("sync").description("Detect API changes from git diff and update OpenAPI spec & documentation").option("-b, --base <branch>", "Base branch or commit to diff against (e.g. main, HEAD~1)").option("-s, --staged", "Analyze git staged changes only").option("-f, --file <path>", "Analyze diff from a specific text/patch file").option("-p, --provider <provider>", "LLM provider (gemini, openai, groq)").option("-m, --model <model>", "LLM model name (e.g. gemini-3.8-flash, gpt-4o-mini)").option("-v, --verbose", "Print verbose debug logs and error details").option("--dry-run", "Preview changes without modifying spec or docs files").action(async (options) => {
   try {
     console.log("\u{1F50D} [SpecSync] Loading configuration...");
     const config = loadConfig();
@@ -25208,6 +25208,12 @@ program2.command("sync").description("Detect API changes from git diff and updat
   } catch (err) {
     const error = err;
     console.error("\u274C [SpecSync] Error during sync:", error.message || error);
+    if (error.cause) {
+      console.error("\u{1F50D} [SpecSync] Underlying cause:", error.cause);
+    }
+    if (options.verbose && error.stack) {
+      console.error("\n\u{1F4DC} [SpecSync] Stack trace:\n", error.stack);
+    }
     process.exit(1);
   }
 });
