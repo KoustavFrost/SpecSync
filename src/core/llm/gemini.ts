@@ -2,6 +2,38 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { DiffAnalysisResult, LLMProvider } from '../types.js';
 import { buildAnalysisPrompt, SYSTEM_PROMPT } from './prompt.js';
 
+async function callWithRetry<T>(
+  fn: () => Promise<T>,
+  maxRetries = 3,
+  initialDelayMs = 2000
+): Promise<T> {
+  let delay = initialDelayMs;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (err: unknown) {
+      const errorStr = String(err);
+      const isTransient =
+        errorStr.includes('503') ||
+        errorStr.includes('429') ||
+        errorStr.includes('high demand') ||
+        errorStr.includes('resource exhausted') ||
+        errorStr.includes('ResourceExhausted');
+
+      if (attempt < maxRetries && isTransient) {
+        console.warn(
+          `⏳ [SpecSync] Model capacity busy (503/429). Retrying in ${delay / 1000}s (attempt ${attempt}/${maxRetries})...`
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        delay *= 2;
+      } else {
+        throw err;
+      }
+    }
+  }
+  throw new Error('Max retries exceeded');
+}
+
 export class GeminiProvider implements LLMProvider {
   name = 'gemini' as const;
   private client: GoogleGenerativeAI;
@@ -23,7 +55,9 @@ export class GeminiProvider implements LLMProvider {
       },
     });
 
-    const response = await generativeModel.generateContent(prompt);
+    const response = await callWithRetry(async () => {
+      return await generativeModel.generateContent(prompt);
+    });
     const text = response.response.text() || '{}';
 
     try {

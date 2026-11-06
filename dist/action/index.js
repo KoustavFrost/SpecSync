@@ -38825,6 +38825,27 @@ ${currentSpec.slice(0, 5e3)}
 }
 
 // src/core/llm/gemini.ts
+async function callWithRetry(fn, maxRetries = 3, initialDelayMs = 2e3) {
+  let delay = initialDelayMs;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      const errorStr = String(err);
+      const isTransient = errorStr.includes("503") || errorStr.includes("429") || errorStr.includes("high demand") || errorStr.includes("resource exhausted") || errorStr.includes("ResourceExhausted");
+      if (attempt < maxRetries && isTransient) {
+        console.warn(
+          `\u23F3 [SpecSync] Model capacity busy (503/429). Retrying in ${delay / 1e3}s (attempt ${attempt}/${maxRetries})...`
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        delay *= 2;
+      } else {
+        throw err;
+      }
+    }
+  }
+  throw new Error("Max retries exceeded");
+}
 var GeminiProvider = class {
   name = "gemini";
   client;
@@ -38842,7 +38863,9 @@ var GeminiProvider = class {
         responseMimeType: "application/json"
       }
     });
-    const response = await generativeModel.generateContent(prompt);
+    const response = await callWithRetry(async () => {
+      return await generativeModel.generateContent(prompt);
+    });
     const text = response.response.text() || "{}";
     try {
       const parsed = JSON.parse(text);
