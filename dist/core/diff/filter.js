@@ -46,4 +46,36 @@ export function filterRelevantDiffs(files, ignorePatterns = []) {
         .filter((f) => isRelevantFile(f.filename, ignorePatterns) && Boolean(f.patch))
         .map((f) => ({ filename: f.filename, patch: f.patch }));
 }
+/**
+ * Parses a raw git unified diff output into file chunks and filters out non-backend files
+ */
+export function parseAndFilterUnifiedDiff(rawDiff, ignorePatterns = []) {
+    if (!rawDiff || rawDiff.trim().length === 0) {
+        return { filteredDiff: '', matchedFiles: [] };
+    }
+    // Split by unified diff header
+    const chunks = rawDiff.split(/(?=^diff --git )/m);
+    const relevantChunks = [];
+    const matchedFiles = [];
+    for (const chunk of chunks) {
+        if (!chunk.trim())
+            continue;
+        const firstLine = chunk.split('\n')[0] || '';
+        // e.g. "diff --git a/src/routes.ts b/src/routes.ts"
+        const match = firstLine.match(/b\/(.+)$/);
+        const filename = match ? match[1].trim() : '';
+        if (filename && isRelevantFile(filename, ignorePatterns)) {
+            relevantChunks.push(chunk);
+            matchedFiles.push(filename);
+        }
+    }
+    // If no "diff --git" headers were matched (e.g. custom patch file without headers), fallback to raw diff
+    if (relevantChunks.length === 0 && !rawDiff.includes('diff --git')) {
+        return { filteredDiff: rawDiff, matchedFiles: ['custom-diff'] };
+    }
+    return {
+        filteredDiff: relevantChunks.join(''),
+        matchedFiles,
+    };
+}
 //# sourceMappingURL=filter.js.map

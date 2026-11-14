@@ -149,7 +149,16 @@ You can also run SpecSync locally on your machine before pushing to GitHub:
 # Set your API key
 export GEMINI_API_KEY="your-gemini-key"
 
-# 1. Preview changes against main branch without modifying files (Dry Run)
+# 1. Bootstrap baseline spec for an existing project (Scans all existing endpoints)
+npx spec-sync init
+
+# Or scan only a specific folder (e.g. src/routes or app/api)
+npx spec-sync init src/routes
+
+# Preview baseline extraction without writing to disk
+npx spec-sync init --dry-run
+
+# 2. Preview incremental changes against main branch (Dry Run)
 npx spec-sync sync --base main --dry-run
 
 # 2. Sync and write changes to openapi.yaml and API.md
