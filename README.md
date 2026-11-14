@@ -143,43 +143,53 @@ Once pushed, every new PR will automatically have its API contracts and document
 
 ## 💻 Local CLI Usage
 
-You can also run SpecSync locally on your machine before pushing to GitHub:
+You can run SpecSync locally on your machine to bootstrap existing projects or preview changes before committing.
+
+### 1. Bootstrapping an Existing Project (`init`)
+If your project already has existing API endpoints, run `init` to scan your codebase and generate your initial `openapi.yaml` and `API.md`:
 
 ```bash
-# Set your API key
 export GEMINI_API_KEY="your-gemini-key"
 
-# 1. Bootstrap baseline spec for an existing project (Scans all existing endpoints)
+# Scan entire repository for existing backend endpoints
 npx spec-sync init
 
-# Or scan only a specific folder (e.g. src/routes or app/api)
+# Or scan only a specific folder (e.g. src/routes, app/api, controllers)
 npx spec-sync init src/routes
 
-# Preview baseline extraction without writing to disk
+# Preview detected endpoints in console without creating files
 npx spec-sync init --dry-run
+```
 
-# 2. Preview incremental changes against main branch (Dry Run)
+---
+
+### 2. Previewing & Syncing Changes (`sync`)
+Use `sync` to inspect local git changes or test specific patch files:
+
+```bash
+# Preview changes against main branch without modifying files (Dry Run)
 npx spec-sync sync --base main --dry-run
 
-# 2. Sync and write changes to openapi.yaml and API.md
+# Sync and update openapi.yaml and API.md against main
 npx spec-sync sync --base main
 
-# 3. Analyze git staged changes only
+# Analyze git staged changes only
 npx spec-sync sync --staged
 
-# 4. Test a specific patch or diff file
+# Test a specific patch or diff file
 npx spec-sync sync --file path/to/sample.diff --dry-run
 
-# 5. Verbose debug mode (shows underlying network causes & stack traces)
+# Verbose debug mode (shows underlying network causes & stack traces)
 npx spec-sync sync --file path/to/sample.diff --dry-run -v
 ```
 
-### CLI Flags:
-* `-b, --base <branch>`: Base branch or commit to diff against (e.g. `main`, `HEAD~1`).
+### CLI Options:
+* `init [targetPath]`: Scans the entire repository (or `[targetPath]`) to generate initial baseline contracts.
+* `-b, --base <branch>`: Base branch or commit to diff against for `sync` (default: `HEAD~1`).
 * `-s, --staged`: Analyze git staged changes only.
 * `-f, --file <path>`: Analyze diff from a specific text or patch file.
-* `-p, --provider <provider>`: LLM provider (`gemini`, `openai`, `groq`).
-* `-m, --model <model>`: Custom LLM model name (e.g. `gemini-3.8-flash`, `gpt-4o-mini`).
+* `-p, --provider <provider>`: Active LLM provider (`gemini`, `openai`, `groq`).
+* `-m, --model <model>`: Custom LLM model name (defaults to `gemini-3.8-flash`).
 * `-v, --verbose`: Print detailed debug logs and root cause diagnostics.
 * `--dry-run`: Preview detected endpoints in console without modifying files on disk.
 
