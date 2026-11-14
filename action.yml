@@ -23,13 +23,11 @@ inputs:
     description: 'LLM model name (defaults to gemini-3.8-flash for Gemini)'
     required: false
   spec_path:
-    description: 'Path to OpenAPI spec file'
+    description: 'Path to OpenAPI spec file (defaults to auto-detecting openapi.yaml or docs/openapi.yaml)'
     required: false
-    default: 'openapi.yaml'
   docs_path:
-    description: 'Path to Markdown documentation file'
+    description: 'Path to Markdown documentation file (defaults to auto-detecting API.md or docs/API.md)'
     required: false
-    default: 'API.md'
   auto_commit:
     description: 'Whether to auto-commit spec and doc updates to the PR branch'
     required: false
