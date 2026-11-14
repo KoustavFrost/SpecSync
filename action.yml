@@ -1,6 +1,6 @@
-name: 'SpecSync'
+name: 'SpecSync - AI OpenAPI & Docs Sync'
 description: 'Automated AI-powered OpenAPI spec and documentation synchronization for every pull request'
-author: 'SpecSync'
+author: 'KoustavFrost'
 branding:
   icon: 'file-text'
   color: 'blue'
