@@ -100,11 +100,13 @@ program
         return;
       }
 
+      fs.mkdirSync(path.dirname(specPath), { recursive: true });
       fs.writeFileSync(specPath, updatedSpecYaml, 'utf8');
       console.log(`💾 [SpecSync] Successfully updated OpenAPI spec at: ${config.spec.path}`);
 
       if (config.docs.enabled) {
         const docPath = path.resolve(config.docs.path);
+        fs.mkdirSync(path.dirname(docPath), { recursive: true });
         fs.writeFileSync(docPath, updatedMarkdown, 'utf8');
         console.log(`📖 [SpecSync] Successfully updated documentation at: ${config.docs.path}`);
       }
@@ -197,11 +199,13 @@ program
         return;
       }
 
+      fs.mkdirSync(path.dirname(specPath), { recursive: true });
       fs.writeFileSync(specPath, updatedSpecYaml, 'utf8');
       console.log(`💾 [SpecSync Init] Generated OpenAPI specification at: ${config.spec.path}`);
 
       if (config.docs.enabled) {
         const docPath = path.resolve(config.docs.path);
+        fs.mkdirSync(path.dirname(docPath), { recursive: true });
         fs.writeFileSync(docPath, updatedMarkdown, 'utf8');
         console.log(`📖 [SpecSync Init] Generated Markdown documentation at: ${config.docs.path}`);
       }

@@ -108,11 +108,13 @@ async function run(): Promise<void> {
     const updatedSpecYaml = mergeEndpointsIntoSpec(currentSpec, analysis.endpoints);
     const updatedMarkdown = generateMarkdownDoc(updatedSpecYaml);
 
+    fs.mkdirSync(path.dirname(specFullPath), { recursive: true });
     fs.writeFileSync(specFullPath, updatedSpecYaml, 'utf8');
     core.info(`💾 [SpecSync] Updated OpenAPI spec at: ${config.spec.path}`);
 
     if (config.docs.enabled) {
       const docFullPath = path.resolve(config.docs.path);
+      fs.mkdirSync(path.dirname(docFullPath), { recursive: true });
       fs.writeFileSync(docFullPath, updatedMarkdown, 'utf8');
       core.info(`📖 [SpecSync] Updated documentation at: ${config.docs.path}`);
     }

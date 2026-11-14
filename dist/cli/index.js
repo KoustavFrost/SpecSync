@@ -17167,13 +17167,40 @@ function loadConfig(cwd = process.cwd()) {
     detectedProvider = "groq";
     detectedKey = process.env.GROQ_API_KEY;
   }
+  const candidateSpecPaths = [
+    "openapi.yaml",
+    "openapi.json",
+    "docs/openapi.yaml",
+    "docs/openapi.json",
+    "swagger.yaml",
+    "swagger.json",
+    "docs/swagger.yaml",
+    "docs/swagger.json"
+  ];
+  let autoDetectedSpecPath = "openapi.yaml";
+  for (const candidate of candidateSpecPaths) {
+    if (fs.existsSync(path.join(cwd, candidate))) {
+      autoDetectedSpecPath = candidate;
+      break;
+    }
+  }
+  const candidateDocPaths = ["API.md", "docs/API.md", "docs/api.md", "api.md"];
+  let autoDetectedDocPath = "API.md";
+  for (const candidate of candidateDocPaths) {
+    if (fs.existsSync(path.join(cwd, candidate))) {
+      autoDetectedDocPath = candidate;
+      break;
+    }
+  }
   return {
     spec: {
       ...DEFAULT_CONFIG.spec,
+      path: fileConfig.spec?.path || autoDetectedSpecPath,
       ...fileConfig.spec || {}
     },
     docs: {
       ...DEFAULT_CONFIG.docs,
+      path: fileConfig.docs?.path || autoDetectedDocPath,
       ...fileConfig.docs || {}
     },
     llm: {
@@ -25258,10 +25285,12 @@ program2.command("sync").description("Detect API changes from git diff and updat
       console.log("\n[Dry Run] Spec and documentation not written to disk.");
       return;
     }
+    fs3.mkdirSync(path3.dirname(specPath), { recursive: true });
     fs3.writeFileSync(specPath, updatedSpecYaml, "utf8");
     console.log(`\u{1F4BE} [SpecSync] Successfully updated OpenAPI spec at: ${config.spec.path}`);
     if (config.docs.enabled) {
       const docPath = path3.resolve(config.docs.path);
+      fs3.mkdirSync(path3.dirname(docPath), { recursive: true });
       fs3.writeFileSync(docPath, updatedMarkdown, "utf8");
       console.log(`\u{1F4D6} [SpecSync] Successfully updated documentation at: ${config.docs.path}`);
     }
@@ -25332,10 +25361,12 @@ program2.command("init [targetPath]").description("Bootstrap initial OpenAPI spe
       console.log("\n[Dry Run] Initial spec and documentation not written to disk.");
       return;
     }
+    fs3.mkdirSync(path3.dirname(specPath), { recursive: true });
     fs3.writeFileSync(specPath, updatedSpecYaml, "utf8");
     console.log(`\u{1F4BE} [SpecSync Init] Generated OpenAPI specification at: ${config.spec.path}`);
     if (config.docs.enabled) {
       const docPath = path3.resolve(config.docs.path);
+      fs3.mkdirSync(path3.dirname(docPath), { recursive: true });
       fs3.writeFileSync(docPath, updatedMarkdown, "utf8");
       console.log(`\u{1F4D6} [SpecSync Init] Generated Markdown documentation at: ${config.docs.path}`);
     }

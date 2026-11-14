@@ -37710,13 +37710,40 @@ function loadConfig(cwd = process.cwd()) {
     detectedProvider = "groq";
     detectedKey = process.env.GROQ_API_KEY;
   }
+  const candidateSpecPaths = [
+    "openapi.yaml",
+    "openapi.json",
+    "docs/openapi.yaml",
+    "docs/openapi.json",
+    "swagger.yaml",
+    "swagger.json",
+    "docs/swagger.yaml",
+    "docs/swagger.json"
+  ];
+  let autoDetectedSpecPath = "openapi.yaml";
+  for (const candidate of candidateSpecPaths) {
+    if (fs.existsSync(path.join(cwd, candidate))) {
+      autoDetectedSpecPath = candidate;
+      break;
+    }
+  }
+  const candidateDocPaths = ["API.md", "docs/API.md", "docs/api.md", "api.md"];
+  let autoDetectedDocPath = "API.md";
+  for (const candidate of candidateDocPaths) {
+    if (fs.existsSync(path.join(cwd, candidate))) {
+      autoDetectedDocPath = candidate;
+      break;
+    }
+  }
   return {
     spec: {
       ...DEFAULT_CONFIG.spec,
+      path: fileConfig.spec?.path || autoDetectedSpecPath,
       ...fileConfig.spec || {}
     },
     docs: {
       ...DEFAULT_CONFIG.docs,
+      path: fileConfig.docs?.path || autoDetectedDocPath,
       ...fileConfig.docs || {}
     },
     llm: {
@@ -45749,10 +45776,12 @@ async function run() {
     }
     const updatedSpecYaml = mergeEndpointsIntoSpec(currentSpec, analysis.endpoints);
     const updatedMarkdown = generateMarkdownDoc(updatedSpecYaml);
+    fs3.mkdirSync(path2.dirname(specFullPath), { recursive: true });
     fs3.writeFileSync(specFullPath, updatedSpecYaml, "utf8");
     core.info(`\u{1F4BE} [SpecSync] Updated OpenAPI spec at: ${config.spec.path}`);
     if (config.docs.enabled) {
       const docFullPath = path2.resolve(config.docs.path);
+      fs3.mkdirSync(path2.dirname(docFullPath), { recursive: true });
       fs3.writeFileSync(docFullPath, updatedMarkdown, "utf8");
       core.info(`\u{1F4D6} [SpecSync] Updated documentation at: ${config.docs.path}`);
     }

@@ -93,13 +93,44 @@ export function loadConfig(cwd: string = process.cwd()): SpecSyncConfig {
     detectedKey = process.env.GROQ_API_KEY;
   }
 
+  // Auto-discover existing spec files in root or docs/ directory
+  const candidateSpecPaths = [
+    'openapi.yaml',
+    'openapi.json',
+    'docs/openapi.yaml',
+    'docs/openapi.json',
+    'swagger.yaml',
+    'swagger.json',
+    'docs/swagger.yaml',
+    'docs/swagger.json',
+  ];
+  let autoDetectedSpecPath = 'openapi.yaml';
+  for (const candidate of candidateSpecPaths) {
+    if (fs.existsSync(path.join(cwd, candidate))) {
+      autoDetectedSpecPath = candidate;
+      break;
+    }
+  }
+
+  // Auto-discover existing doc files in root or docs/ directory
+  const candidateDocPaths = ['API.md', 'docs/API.md', 'docs/api.md', 'api.md'];
+  let autoDetectedDocPath = 'API.md';
+  for (const candidate of candidateDocPaths) {
+    if (fs.existsSync(path.join(cwd, candidate))) {
+      autoDetectedDocPath = candidate;
+      break;
+    }
+  }
+
   return {
     spec: {
       ...DEFAULT_CONFIG.spec,
+      path: fileConfig.spec?.path || autoDetectedSpecPath,
       ...(fileConfig.spec || {}),
     },
     docs: {
       ...DEFAULT_CONFIG.docs,
+      path: fileConfig.docs?.path || autoDetectedDocPath,
       ...(fileConfig.docs || {}),
     },
     llm: {
