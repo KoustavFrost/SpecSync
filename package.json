@@ -1,6 +1,6 @@
 {
   "name": "spec-sync",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Automated AI-powered OpenAPI spec and documentation synchronization for every pull request",
   "type": "module",
   "bin": {
@@ -8,11 +8,17 @@
   },
   "main": "./dist/core/index.js",
   "types": "./dist/core/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "dev": "tsx src/cli/index.ts",
     "build": "tsc && esbuild src/action/index.ts --bundle --platform=node --target=node20 --format=esm --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\" --outfile=dist/action/index.js && esbuild src/cli/index.ts --bundle --platform=node --target=node20 --format=esm --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\" --outfile=dist/cli/index.js",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build && npm test"
   },
   "keywords": [
     "openapi",
@@ -23,8 +29,16 @@
     "gemini",
     "api-contracts"
   ],
-  "author": "",
+  "author": "Koustav Pal",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KoustavFrost/SpecSync.git"
+  },
+  "bugs": {
+    "url": "https://github.com/KoustavFrost/SpecSync/issues"
+  },
+  "homepage": "https://github.com/KoustavFrost/SpecSync#readme",
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/exec": "^1.1.1",
