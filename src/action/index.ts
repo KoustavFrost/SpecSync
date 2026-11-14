@@ -26,6 +26,9 @@ async function run(): Promise<void> {
     const inputProvider = core.getInput('llm_provider');
     if (inputProvider) config.llm.provider = inputProvider as typeof config.llm.provider;
 
+    const inputModel = core.getInput('llm_model') || core.getInput('gemini_model');
+    if (inputModel) config.llm.model = inputModel;
+
     const inputApiKey =
       core.getInput('gemini_api_key') ||
       core.getInput('openai_api_key') ||

@@ -45688,6 +45688,8 @@ async function run() {
     if (inputDocsPath) config.docs.path = inputDocsPath;
     const inputProvider = core.getInput("llm_provider");
     if (inputProvider) config.llm.provider = inputProvider;
+    const inputModel = core.getInput("llm_model") || core.getInput("gemini_model");
+    if (inputModel) config.llm.model = inputModel;
     const inputApiKey = core.getInput("gemini_api_key") || core.getInput("openai_api_key") || core.getInput("groq_api_key") || process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY || process.env.GROQ_API_KEY;
     if (inputApiKey) {
       config.llm.apiKey = inputApiKey;

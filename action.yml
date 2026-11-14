@@ -19,6 +19,9 @@ inputs:
     description: 'LLM provider to use: gemini | openai | groq'
     required: false
     default: 'gemini'
+  llm_model:
+    description: 'LLM model name (defaults to gemini-3.8-flash for Gemini)'
+    required: false
   spec_path:
     description: 'Path to OpenAPI spec file'
     required: false
